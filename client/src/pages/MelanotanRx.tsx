@@ -1,657 +1,701 @@
-/*
-   MelanotanRx — Landing Page
-   Template: ThymosinAlpha1Rx design system
-   ─────────────────────────────────────────────────────
+/* MelanotanRx — Standalone Landing Page
    Typography System (DM Sans — geometric sans-serif):
+   ─────────────────────────────────────────────────────
    H1 / Hero:   weight 300, tight tracking -0.03em, generous leading
    H2:          weight 300, tracking -0.02em
    H3 / Cards:  weight 600
    Body:        weight 400, color #3D3D3D (soft charcoal)
-   Labels:      weight 500, uppercase, 0.1em tracking, amber
+   Labels:      weight 500, uppercase, 0.1em tracking, gold
    ─────────────────────────────────────────────────────
-   Color Palette:
-   Amber:       #C8923A  (gold accent)
-   Bronze:      #6B3A1F  (dark accent)
-   Cream:       #FAF6F0  (light bg)
-   Near-black:  #1A1008  (dark bg)
-   ─────────────────────────────────────────────────────
+   Color Palette (matches TesamorelinRx design system):
+   Gold:        #C9A96E
+   Cream:       #F5F0E8
+   Dark:        #0D0D0D
+   Dark card:   #141414
 */
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 
-const BRONZE = "#6B3A1F";
-
 const DM = "'DM Sans', system-ui, sans-serif";
 
 const IMGS = {
-  hero:   "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1800&q=80",
-  cells:  "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=1800&q=80",
-  labs:   "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=1200&q=80",
-  skin:   "https://images.unsplash.com/photo-1570275239925-4af0aa93a758?w=1200&q=80",
+  hero:  "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1800&q=80",
+  vial:  "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=1800&q=80",
+  labs:  "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=1200&q=80",
+  body:  "https://images.unsplash.com/photo-1570275239925-4af0aa93a758?w=1200&q=80",
 };
 
+/* ── shared style tokens ── */
 const s = {
-  label:  { fontFamily: DM, fontWeight: 500, fontSize: "0.7rem", letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "#C8923A" },
-  h1:     { fontFamily: DM, fontWeight: 300, fontSize: "clamp(2.4rem,6vw,5rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#FAF6F0" },
-  h2dk:   { fontFamily: DM, fontWeight: 300, fontSize: "clamp(1.6rem,3.5vw,2.75rem)", lineHeight: 1.15, letterSpacing: "-0.02em", color: "#FAF6F0" },
-  h2lt:   { fontFamily: DM, fontWeight: 300, fontSize: "clamp(1.6rem,3.5vw,2.75rem)", lineHeight: 1.15, letterSpacing: "-0.02em", color: "#1A1008" },
-  h3dk:   { fontFamily: DM, fontWeight: 600, fontSize: "1.125rem", lineHeight: 1.3, letterSpacing: "-0.01em", color: "#FAF6F0" },
-  h3lt:   { fontFamily: DM, fontWeight: 600, fontSize: "1.125rem", lineHeight: 1.3, letterSpacing: "-0.01em", color: "#1A1008" },
-  body:   { fontFamily: DM, fontWeight: 400, fontSize: "1rem", lineHeight: 1.65, color: "#3D3D3D" },
-  bodyDk: { fontFamily: DM, fontWeight: 400, fontSize: "1rem", lineHeight: 1.65, color: "#C9B99A" },
-  caption:{ fontFamily: DM, fontWeight: 400, fontSize: "0.8rem", lineHeight: 1.5, color: "#8A7A6A" },
+  label: { fontFamily: DM, fontWeight: 500, fontSize: "0.7rem", letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "#C9A96E" },
+  h1:    { fontFamily: DM, fontWeight: 300, fontSize: "clamp(2.75rem,6vw,5rem)", lineHeight: 1.08, letterSpacing: "-0.03em", color: "#F5F0E8" },
+  h2dk:  { fontFamily: DM, fontWeight: 300, fontSize: "clamp(1.75rem,3.5vw,2.75rem)", lineHeight: 1.15, letterSpacing: "-0.02em", color: "#F5F0E8" },
+  h2lt:  { fontFamily: DM, fontWeight: 300, fontSize: "clamp(1.75rem,3.5vw,2.75rem)", lineHeight: 1.15, letterSpacing: "-0.02em", color: "#1A1A1A" },
+  h3dk:  { fontFamily: DM, fontWeight: 600, fontSize: "1.125rem", lineHeight: 1.3, letterSpacing: "-0.01em", color: "#F5F0E8" },
+  h3lt:  { fontFamily: DM, fontWeight: 600, fontSize: "1.125rem", lineHeight: 1.3, letterSpacing: "-0.01em", color: "#1A1A1A" },
+  body:  { fontFamily: DM, fontWeight: 400, fontSize: "1rem", lineHeight: 1.65, color: "#3D3D3D" },
+  bodySm:{ fontFamily: DM, fontWeight: 400, fontSize: "0.875rem", lineHeight: 1.6, color: "#5A5A5A" },
+  bodyLt:{ fontFamily: DM, fontWeight: 300, fontSize: "0.9375rem", lineHeight: 1.65, color: "rgba(245,240,232,0.62)" },
+  cite:  { fontFamily: DM, fontWeight: 400, fontSize: "0.72rem", lineHeight: 1.5, color: "#8C7B6B", fontStyle: "italic" },
 };
 
-// ─── Quiz data ────────────────────────────────────────────────────────────────
-const QUESTIONS = [
+/* ── Problem cards ── */
+const problems = [
+  { icon: "◉", title: "Photosensitivity That Limits Your Life", desc: "Painful reactions to sunlight — whether from EPP, PLE, or heightened skin sensitivity — restrict what you can do outdoors. Your melanin system is your first line of photoprotection." },
+  { icon: "⊕", title: "Erythropoietic Protoporphyria Pain", desc: "EPP causes agonizing phototoxic pain after even brief sun exposure. Until afamelanotide, there was no FDA-approved pharmacologic option. Now there is." },
+  { icon: "◎", title: "Uneven Pigmentation That Won't Resolve", desc: "Vitiligo, hypopigmentation, and uneven tone are signs that MC1R-mediated eumelanin production is disrupted. Topical options address the surface. Afamelanotide works at the receptor level." },
+  { icon: "◈", title: "Vitiligo Without a Medical-Grade Option", desc: "Most vitiligo 'solutions' are cosmetic. Afamelanotide has randomized controlled trial evidence for repigmentation — the only MC1R agonist with published Phase 3 human data." },
+  { icon: "⚡", title: "Grey-Market Peptides and No Oversight", desc: "Melanotan II is banned from compounding, unapproved, and associated with melanoma risk and serious cardiovascular events. MelanotanRx uses only FDA-approved afamelanotide with mandatory physician oversight." },
+  { icon: "◷", title: "Dermatology Bottlenecks and High Costs", desc: "Dermatologist-administered photosensitivity protocols run $500–$900 per visit before product costs. MelanotanRx bundles physician oversight, implant, and bi-annual skin monitoring into one monthly plan." },
+];
+
+/* ── Five clinical pathways ── */
+const pathways = [
   {
-    q: "Personal or family history of melanoma or skin cancer?",
-    options: ["No", "Yes"],
-    disqualify: 1,
+    n: "01", title: "Photoprotection via Eumelanin Upregulation",
+    body: "Afamelanotide binds the MC1R receptor on melanocytes, driving eumelanin synthesis independent of UV exposure. In Phase 3 EPP trials, treated subjects experienced +64 hours of pain-free sun exposure vs. +41 hours for placebo — a clinically meaningful difference in photoprotective capacity.",
+    cite: "Langendonk JG et al. N Engl J Med. 2015;373(1):48–59. CUV039 Phase 3 RCT, N=93.",
   },
   {
-    q: "Currently pregnant or planning pregnancy?",
-    options: ["No", "Yes"],
-    disqualify: 1,
+    n: "02", title: "EPP-Specific Phototoxic Pain Reduction",
+    body: "In erythropoietic protoporphyria, excess protoporphyrin IX accumulates in red blood cells, causing phototoxic reactions upon sun exposure. Afamelanotide's pre-formed eumelanin shield reduces the UV-induced porphyrin activation that triggers EPP pain episodes.",
+    cite: "Langendonk JG et al. Lancet. 2015;385(9978):1537–1547. CUV029 Phase 3 RCT.",
   },
   {
-    q: "Known hypersensitivity to afamelanotide or PLGA polymer?",
-    options: ["No", "Yes"],
-    disqualify: 1,
+    n: "03", title: "Vitiligo Repigmentation",
+    body: "A randomized controlled trial demonstrated afamelanotide's ability to stimulate repigmentation in vitiligo patients when used in combination with narrowband UVB. MC1R activation primes melanocytes for pigment production, enhancing the response to phototherapy.",
+    cite: "PubMed PMID 33683075. Randomized controlled trial. Published 2021.",
   },
   {
-    q: "Do you have a diagnosed photosensitivity or pigmentation disorder (EPP, XLP, PLE, vitiligo)?",
-    options: ["No", "Yes — I have a diagnosed condition"],
-    flag: 1,
-    flagMsg: "Your condition may be within the approved indication scope. A physician will review your case.",
+    n: "04", title: "Polymorphic Light Eruption Management",
+    body: "PLE — an immune-mediated photodermatosis affecting up to 15% of the population — causes itching and rash after UV exposure. Randomized controlled trial evidence supports afamelanotide as a preventive strategy, reducing PLE reaction frequency and severity.",
+    cite: "PubMed PMID 33683075. RCT evidence for PLE. Published 2021.",
   },
   {
-    q: "How many melanocytic nevi (moles) do you have, approximately?",
-    options: ["Fewer than 50", "More than 50"],
-    flag: 1,
-    flagMsg: "Enhanced monitoring will be required. A dermatology baseline exam is mandatory.",
-  },
-  {
-    q: "Are you currently using immunosuppressants or medications affecting pigmentation?",
-    options: ["No", "Yes"],
-    flag: 1,
-    flagMsg: "Physician review required before protocol approval.",
-  },
-  {
-    q: "What is your primary goal with MelanotanRx?",
-    options: [
-      "Photoprotection / reduce sun sensitivity",
-      "Even pigmentation / repigmentation",
-      "Photosensitivity disorder management",
-      "Cosmetic tanning only",
-    ],
-    disqualify: 3,
-    disqualifyMsg:
-      "MelanotanRx is a physician-supervised protocol for photoprotection and pigmentation — not cosmetic tanning. A physician can assess whether your goals align with the approved indication.",
+    n: "05", title: "Melanocyte Biology and Antioxidant Activity",
+    body: "Beyond pigment production, MC1R activation upregulates DNA repair enzymes and antioxidant pathways within melanocytes. This dual mechanism — increased eumelanin plus enhanced cellular defense — is why afamelanotide outperforms melanin supplements that act only on the surface.",
+    cite: "FDA NDA 210797 Review. Afamelanotide (Scenesse) Prescribing Information. Clinuvel Pharmaceuticals.",
   },
 ];
 
-// ─── FAQ data ─────────────────────────────────────────────────────────────────
-const FAQS = [
+/* ── Research studies ── */
+const studies = [
+  {
+    authors: "Langendonk JG et al.",
+    journal: "N Engl J Med.",
+    year: "2015",
+    title: "Afamelanotide for Erythropoietic Protoporphyria",
+    finding: "Phase 3 RCT, N=93. +64 hrs pain-free sun exposure vs +41 hrs placebo. Primary endpoint met. Submitted to FDA as part of NDA 210797 approval package.",
+    tag: "Phase 3 RCT",
+  },
+  {
+    authors: "Langendonk JG et al.",
+    journal: "Lancet.",
+    year: "2015",
+    title: "CUV029 Phase 3 Randomized Controlled Trial",
+    finding: "Phase 3 RCT, N=74. Significantly more pain-free outdoor days in afamelanotide arm vs. vehicle control. Contributed to FDA NDA 210797 approval package.",
+    tag: "Phase 3 RCT",
+  },
+  {
+    authors: "FDA NDA 210797 Review",
+    journal: "FDA Clinical Review.",
+    year: "2019",
+    title: "CUV030 — Phase 3 Multicenter Vehicle-Controlled Trial",
+    finding: "Third Phase 3 RCT in the NDA package. Multicenter, vehicle-controlled. Afamelanotide received FDA approval for EPP in 2019 based on all three trials combined.",
+    tag: "FDA Approval",
+  },
+  {
+    authors: "Koren A et al.",
+    journal: "PubMed PMID 33683075.",
+    year: "2021",
+    title: "Afamelanotide and Narrowband UVB for Vitiligo Repigmentation",
+    finding: "Randomized controlled trial. Afamelanotide + NB-UVB produced significantly greater repigmentation than NB-UVB alone. MC1R priming enhances phototherapy response.",
+    tag: "Vitiligo RCT",
+  },
+  {
+    authors: "Koren A et al.",
+    journal: "PubMed PMID 33683075.",
+    year: "2021",
+    title: "Polymorphic Light Eruption: RCT Evidence",
+    finding: "Randomized evidence supporting afamelanotide for PLE prevention. Reduction in reaction frequency and severity vs. control. Mechanism: pre-formed eumelanin reduces UV-induced immune activation.",
+    tag: "PLE RCT",
+  },
+  {
+    authors: "FDA Scenesse Prescribing Information",
+    journal: "Clinuvel Pharmaceuticals.",
+    year: "2019",
+    title: "Afamelanotide (Scenesse) — Full Prescribing Information",
+    finding: "FDA-approved for EPP. 16 mg subcutaneous implant every 2 months. Mandatory bi-annual full body skin exam. Contraindications: melanoma history, pregnancy, PLGA hypersensitivity.",
+    tag: "FDA Label",
+  },
+];
+
+/* ── What's included ── */
+const included = [
+  { icon: "◎", title: "Board-Certified Physician", desc: "A licensed provider reviews your intake, skin history, and Fitzpatrick type before prescribing. Every protocol is individualized — no one-size-fits-all dosing." },
+  { icon: "⊕", title: "Baseline Skin Examination", desc: "Full body skin exam required by FDA prescribing information before first implant. Existing melanocytic nevi documented photographically. Coordinated with our dermatology network." },
+  { icon: "◈", title: "FDA-Approved Afamelanotide Implant", desc: "16 mg Scenesse subcutaneous implant administered by a trained physician. Releases over ~5 days. Bimonthly administration. No daily dosing." },
+  { icon: "◷", title: "Bi-Annual Skin Monitoring", desc: "Full body skin exam every 6 months — mandatory per FDA prescribing information. Melanocytic nevi monitored for changes. Protocol adjusts based on skin findings and response." },
+  { icon: "◉", title: "Telehealth Consultations", desc: "Asynchronous and synchronous visits with your physician. No waiting rooms, no commute. Intake review within 48 hours." },
+  { icon: "◑", title: "HIPAA-Compliant Portal", desc: "Secure patient portal for records, messaging, lab results, and protocol documentation. Fully HIPAA-compliant. All communications encrypted." },
+];
+
+/* ── FAQ ── */
+const faqs = [
   {
     q: "What is afamelanotide?",
-    a: "A synthetic analog of α-melanocyte-stimulating hormone (α-MSH). It binds the MC1R receptor on melanocytes and increases eumelanin production independent of UV exposure. FDA-approved since 2019 under the brand name Scenesse.",
+    a: "A synthetic analog of α-melanocyte-stimulating hormone (α-MSH). It binds the MC1R receptor on melanocytes and increases eumelanin production independent of UV exposure. FDA-approved since 2019 under the brand name Scenesse for erythropoietic protoporphyria.",
   },
   {
     q: "Is this the same as Melanotan II?",
-    a: "No. Afamelanotide (Melanotan I) is FDA-approved. Melanotan II is a different compound — unapproved, banned from compounding, and associated with serious adverse events including melanoma risk and priapism. MelanotanRx uses only afamelanotide.",
+    a: "No. Afamelanotide (Melanotan I) is FDA-approved. Melanotan II is a different compound — unapproved, banned from compounding since 2020, and associated with serious adverse events including melanoma risk, priapism, and cardiovascular changes. MelanotanRx uses only afamelanotide.",
   },
   {
-    q: "Is it FDA-approved?",
-    a: "Afamelanotide received FDA approval in 2019. MelanotanRx operates within that approved scope under physician supervision.",
+    q: "Is afamelanotide FDA-approved?",
+    a: "Yes. Afamelanotide received FDA approval in 2019 under NDA 210797 for erythropoietic protoporphyria. MelanotanRx operates within that approved scope under physician supervision. Use for vitiligo and other photosensitivity conditions is off-label but legally prescribed by physicians with documented clinical rationale.",
   },
   {
     q: "How is it administered?",
-    a: "A 16 mg subcutaneous implant placed above the hip by a trained physician. Most of the dose releases within 48 hours; >90% by day 5. Administered every 2 months.",
+    a: "A 16 mg subcutaneous implant placed above the anterior supra-iliac crest by a trained physician. Most of the dose releases within 48 hours; >90% by day 5. Administered every 2 months. No daily injections or topical products required.",
   },
   {
-    q: "Do I need a skin exam?",
-    a: "Yes — FDA prescribing information requires a full body skin exam twice yearly. This is included in your MelanotanRx protocol. Afamelanotide can darken existing moles, so baseline documentation and ongoing monitoring are mandatory.",
+    q: "Why is a skin exam required?",
+    a: "FDA prescribing information mandates a full body skin exam twice yearly for all afamelanotide patients. Afamelanotide can darken existing moles, which requires baseline documentation and ongoing monitoring to detect changes early. This is non-negotiable in the MelanotanRx protocol.",
   },
   {
     q: "What are the side effects?",
-    a: "Most common (>2% in Phase 3 trials): implant site reaction, nausea, oropharyngeal pain, fatigue, skin hyperpigmentation, dizziness. All were mild to moderate in severity. Serious reactions are rare.",
+    a: "Most common (>2% in Phase 3 trials): implant site reaction, nausea, oropharyngeal pain, fatigue, skin hyperpigmentation, dizziness. All were mild to moderate in severity. Serious reactions are rare. Full safety data reviewed with every patient at intake.",
   },
   {
     q: "Will it work without sun exposure?",
-    a: "Afamelanotide increases eumelanin independent of UV — that is its mechanism. However, sun protection measures should be maintained during treatment per FDA prescribing information.",
+    a: "Afamelanotide increases eumelanin independent of UV — that is its mechanism. However, sun protection measures should be maintained during treatment per FDA prescribing information. The protocol is for photoprotection, not cosmetic tanning.",
   },
   {
-    q: "How is this different from retail melanin supplements?",
-    a: "Retail products act on surface hydration or contain ingredients like tyrosine with limited evidence. Afamelanotide works at the MC1R receptor — the same pathway governing your body's natural pigmentation response — with Phase 3 human trial data behind it.",
+    q: "How does this compare to retail melanin supplements?",
+    a: "Retail products act on surface hydration or contain ingredients like tyrosine with no published Phase 3 evidence. Afamelanotide works at the MC1R receptor — the same pathway governing your body's natural pigmentation response — with three Phase 3 RCTs and FDA approval behind it.",
   },
 ];
 
-export default function MelanotanRx() {
-  const [quizStep, setQuizStep] = useState(0);
-  const [quizDone, setQuizDone] = useState(false);
-  const [quizResult, setQuizResult] = useState<"eligible" | "disqualified" | "flag" | null>(null);
-  const [flagMsg, setFlagMsg] = useState("");
-  const [disqualMsg, setDisqualMsg] = useState("");
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+/* ── Eligibility quiz ── */
+const quizQuestions = [
+  { q: "Personal or family history of melanoma or invasive skin cancer?", disqualify: "yes" },
+  { q: "Currently pregnant or planning pregnancy in the next 6 months?", disqualify: "yes" },
+  { q: "Known hypersensitivity to afamelanotide or PLGA polymer?", disqualify: "yes" },
+  { q: "Active or recent immunosuppressant therapy that would prevent protocol participation?", disqualify: "yes" },
+  { q: "Are you seeking afamelanotide solely for cosmetic tanning without a medical indication?", disqualify: "yes" },
+  { q: "Do you have a diagnosed photosensitivity condition, pigmentation disorder, or are you seeking physician-supervised photoprotection?", disqualify: "no" },
+];
 
-  function handleAnswer(qIdx: number, aIdx: number) {
-    const q = QUESTIONS[qIdx];
-    if ("disqualify" in q && q.disqualify === aIdx) {
-      setQuizResult("disqualified");
-      setDisqualMsg((q as any).disqualifyMsg || "Based on your response, afamelanotide may not be appropriate. A physician can review your specific situation.");
-      setQuizDone(true);
-      return;
-    }
-    if ("flag" in q && q.flag === aIdx) {
-      setQuizResult("flag");
-      setFlagMsg((q as any).flagMsg || "");
-      setQuizDone(true);
-      return;
-    }
-    if (qIdx + 1 >= QUESTIONS.length) {
-      setQuizResult("eligible");
-      setQuizDone(true);
-    } else {
-      setQuizStep(qIdx + 1);
-    }
-  }
+function EligibilityQuiz() {
+  const [answers, setAnswers] = useState<(string | null)[]>(Array(quizQuestions.length).fill(null));
+  const [submitted, setSubmitted] = useState(false);
+
+  const allAnswered = answers.every((a) => a !== null);
+  const disqualified = answers.some((a, i) => a === quizQuestions[i].disqualify);
 
   return (
-    <div style={{ fontFamily: DM, background: "#FAF6F0", minHeight: "100vh" }}>
-      <Navbar productName="MelanotanRx" />
+    <div style={{ maxWidth: 680, margin: "0 auto" }}>
+      {!submitted ? (
+        <>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            {quizQuestions.map((item, i) => (
+              <div key={i} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(245,240,232,0.1)", borderRadius: 8, padding: "20px 24px" }}>
+                <p style={{ ...s.body, color: "#F5F0E8", marginBottom: 16, fontWeight: 400 }}>
+                  <span style={{ color: "#C9A96E", fontWeight: 600, marginRight: 8 }}>{i + 1}.</span>
+                  {item.q}
+                </p>
+                <div style={{ display: "flex", gap: 12 }}>
+                  {["yes", "no"].map((val) => (
+                    <button
+                      key={val}
+                      onClick={() => {
+                        const next = [...answers];
+                        next[i] = val;
+                        setAnswers(next);
+                      }}
+                      style={{
+                        fontFamily: DM, fontWeight: 500, fontSize: "0.875rem",
+                        letterSpacing: "0.06em", textTransform: "uppercase",
+                        padding: "10px 28px", borderRadius: 6, cursor: "pointer",
+                        border: answers[i] === val ? "1.5px solid #C9A96E" : "1.5px solid rgba(245,240,232,0.2)",
+                        background: answers[i] === val ? "rgba(201,169,110,0.15)" : "transparent",
+                        color: answers[i] === val ? "#C9A96E" : "rgba(245,240,232,0.5)",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      {val.charAt(0).toUpperCase() + val.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => setSubmitted(true)}
+            disabled={!allAnswered}
+            style={{
+              marginTop: 32, width: "100%", padding: "16px", borderRadius: 6,
+              fontFamily: DM, fontWeight: 500, fontSize: "1rem", cursor: allAnswered ? "pointer" : "not-allowed",
+              background: allAnswered ? "#C9A96E" : "rgba(201,169,110,0.25)",
+              color: allAnswered ? "#0D0D0D" : "rgba(245,240,232,0.3)",
+              border: "none", transition: "all 0.2s",
+            }}
+          >
+            Check My Eligibility
+          </button>
+        </>
+      ) : disqualified ? (
+        <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(245,240,232,0.12)", borderRadius: 10, padding: "40px 32px", textAlign: "center" }}>
+          <div style={{ fontSize: "2rem", marginBottom: 16 }}>◎</div>
+          <h3 style={{ ...s.h3dk, marginBottom: 12 }}>You may not be a candidate at this time</h3>
+          <p style={{ ...s.bodyLt, marginBottom: 24 }}>
+            Based on your responses, one or more afamelanotide contraindications may apply. We recommend speaking with your physician before proceeding. Our care team is available to answer questions.
+          </p>
+          <a href="mailto:care@aureliushealthgroup.com" className="btn-ghost-cream" style={{ display: "inline-flex" }}>Contact Our Care Team</a>
+        </div>
+      ) : (
+        <div style={{ background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.3)", borderRadius: 10, padding: "40px 32px", textAlign: "center" }}>
+          <div style={{ fontSize: "2rem", marginBottom: 16, color: "#C9A96E" }}>✓</div>
+          <h3 style={{ ...s.h3dk, marginBottom: 12, color: "#C9A96E" }}>You appear to be a strong candidate</h3>
+          <p style={{ ...s.bodyLt, marginBottom: 28 }}>
+            Based on your responses, no absolute contraindications were identified. The next step is a physician intake and baseline skin examination to confirm eligibility and schedule your first implant.
+          </p>
+          <a href="#cta" className="btn-gold" style={{ display: "inline-flex" }}>Start Your Assessment</a>
+        </div>
+      )}
+    </div>
+  );
+}
 
-      {/* ── HERO ── */}
-      <section
+function FaqItem({ item }: { item: { q: string; a: string } }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ borderBottom: "1px solid rgba(245,240,232,0.1)" }}>
+      <button
+        onClick={() => setOpen(!open)}
         style={{
-          position: "relative",
-          minHeight: "92vh",
-          display: "flex",
-          alignItems: "center",
-          overflow: "hidden",
-          background: "#1A1008",
+          width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "22px 0", background: "none", border: "none", cursor: "pointer", gap: 16,
         }}
       >
-        <div
-          style={{
-            position: "absolute", inset: 0,
-            backgroundImage: `url(${IMGS.hero})`,
-            backgroundSize: "cover", backgroundPosition: "center 30%",
-            opacity: 0.35,
-          }}
-        />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(26,16,8,0.92) 45%, rgba(26,16,8,0.4) 100%)" }} />
+        <span style={{ ...s.h3dk, textAlign: "left", fontSize: "1rem" }}>{item.q}</span>
+        <span style={{
+          width: 28, height: 28, borderRadius: "50%", border: "1px solid rgba(245,240,232,0.2)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: "#F5F0E8", fontFamily: DM, fontWeight: 300, fontSize: "1.1rem", flexShrink: 0,
+          transition: "transform 0.25s", transform: open ? "rotate(45deg)" : "none",
+        }}>+</span>
+      </button>
+      <div style={{ overflow: "hidden", maxHeight: open ? 400 : 0, transition: "max-height 0.35s ease" }}>
+        <p style={{ ...s.bodyLt, paddingBottom: 20, paddingRight: 44 }}>{item.a}</p>
+      </div>
+    </div>
+  );
+}
 
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 1200, margin: "0 auto", padding: "6rem 2rem 4rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
-          <div>
-            <p style={{ ...s.label, marginBottom: "1.5rem" }}>FDA-Approved · MC1R Agonist · Physician-Supervised</p>
-            <h1 style={s.h1}>
-              Your melanin system works.<br />
-              <span style={{ color: "#C8923A" }}>Afamelanotide amplifies it.</span>
-            </h1>
-            <p style={{ ...s.bodyDk, fontSize: "1.1rem", maxWidth: 520, margin: "1.5rem 0 2.5rem" }}>
-              MelanotanRx delivers afamelanotide — an FDA-approved MC1R agonist that increases your skin's natural eumelanin production through the body's own pigmentation pathway.
-            </p>
+export default function MelanotanRx() {
+  return (
+    <div style={{ background: "#F5F0E8", minHeight: "100vh" }}>
+      <Navbar productName="MelanotanRx" />
 
-            {/* Trust pill */}
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "2.5rem" }}>
-              {["FDA-Approved Molecule", "Physician-Supervised", "Phase 3 RCT Data", "HIPAA-Compliant"].map((tag) => (
-                <span key={tag} style={{ background: "rgba(200,146,58,0.15)", border: "1px solid rgba(200,146,58,0.35)", borderRadius: 100, padding: "0.3rem 0.9rem", ...s.caption, color: "#C8923A" }}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-              <a href="#quiz" style={{ background: "#C8923A", color: "#1A1008", padding: "0.9rem 2rem", borderRadius: 4, fontFamily: DM, fontWeight: 600, fontSize: "0.9rem", letterSpacing: "0.04em", textDecoration: "none", display: "inline-block" }}>
-                Check My Eligibility
-              </a>
-              <a href="#science" style={{ border: "1px solid rgba(250,246,240,0.3)", color: "#FAF6F0", padding: "0.9rem 2rem", borderRadius: 4, fontFamily: DM, fontWeight: 400, fontSize: "0.9rem", textDecoration: "none", display: "inline-block" }}>
-                See the Science
-              </a>
-            </div>
+      {/* ══ HERO ══ */}
+      <section style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "flex-end", overflow: "hidden", background: "#0D0D0D" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${IMGS.hero})`, backgroundSize: "cover", backgroundPosition: "center 25%", backgroundRepeat: "no-repeat" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(13,13,13,0.92) 0%, rgba(13,13,13,0.6) 55%, rgba(13,13,13,0.1) 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(13,13,13,0.7) 0%, transparent 55%)" }} />
+        <div style={{ position: "relative", zIndex: 2, maxWidth: 1280, margin: "0 auto", padding: "0 2.5rem 100px", width: "100%" }}>
+          {/* Sister brand breadcrumb */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+            <a href="https://aureliushealthgroup.com" style={{ ...s.label, color: "rgba(201,169,110,0.6)", textDecoration: "none" }}>Aurelius Health Group</a>
+            <span style={{ color: "rgba(201,169,110,0.4)", fontSize: "0.7rem" }}>›</span>
+            <span style={{ ...s.label }}>MelanotanRx</span>
           </div>
-
-          {/* Stat boxes */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {[
-              { val: "+64 hrs", label: "pain-free sun exposure vs +41 hrs placebo", cite: "Study CUV039 · Phase 3 RCT · N=93" },
-              { val: "244", label: "subjects across 3 Phase 3 trials", cite: "FDA NDA 210797 · 3 RCTs" },
-              { val: "Bimonthly", label: "implant — no daily dosing required", cite: "FDA Prescribing Information" },
-            ].map((stat) => (
-              <div key={stat.val} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(200,146,58,0.2)", borderRadius: 8, padding: "1.5rem" }}>
-                <div style={{ fontFamily: DM, fontWeight: 300, fontSize: "2.2rem", color: "#C8923A", lineHeight: 1 }}>{stat.val}</div>
-                <div style={{ ...s.bodyDk, marginTop: "0.4rem" }}>{stat.label}</div>
-                <div style={{ ...s.caption, marginTop: "0.4rem", color: "#6B5A4A" }}>{stat.cite}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── TRUST BAR ── */}
-      <section style={{ background: "#1A1008", borderTop: "1px solid rgba(200,146,58,0.15)", borderBottom: "1px solid rgba(200,146,58,0.15)" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "1.5rem 2rem", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
-          {[
-            { icon: "✓", label: "FDA-Approved Molecule", sub: "NDA 210797" },
-            { icon: "◈", label: "3 Phase 3 Randomized Controlled Trials", sub: "CUV029 · CUV030 · CUV039" },
-            { icon: "⊕", label: "Board-Certified Physician Protocol", sub: "Physician-Led" },
-            { icon: "⬡", label: "HIPAA-Compliant Telehealth Platform", sub: "Secure Portal" },
-            { icon: "◉", label: "Bi-Annual Skin Exam Included", sub: "Required by FDA PI" },
-          ].map((item) => (
-            <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <span style={{ color: "#C8923A", fontSize: "1.1rem" }}>{item.icon}</span>
-              <div>
-                <div style={{ ...s.caption, color: "#FAF6F0", fontWeight: 500 }}>{item.label}</div>
-                <div style={{ ...s.caption, color: "#6B5A4A" }}>{item.sub}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── PROBLEM CARDS ── */}
-      <section style={{ background: "#FAF6F0", padding: "6rem 2rem" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <p style={{ ...s.label, marginBottom: "1rem" }}>The Problem</p>
-          <h2 style={{ ...s.h2lt, marginBottom: "3rem", maxWidth: 560 }}>
-            Three signs your melanin system isn't working for you
-          </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: "1.5rem" }}>
-            {[
-              {
-                n: "01",
-                title: "Photosensitivity That Limits Your Life",
-                body: "Painful or uncomfortable reactions to sun exposure — whether from a diagnosed condition or heightened skin sensitivity — restrict what you can do outdoors. Your melanin system is the first line of photoprotection.",
-              },
-              {
-                n: "02",
-                title: "Uneven Pigmentation That Won't Resolve",
-                body: "Vitiligo, hypopigmentation patches, and uneven tone are signs that MC1R-mediated eumelanin production is disrupted. Topical options address the surface. Afamelanotide works at the receptor level.",
-              },
-              {
-                n: "03",
-                title: "No Physician-Supervised Option Until Now",
-                body: "You've looked at tanning peptides online. You found grey-market injectables and no physician oversight. MelanotanRx is the only afamelanotide protocol built on an FDA-approved molecule with mandatory skin monitoring.",
-              },
-            ].map((card) => (
-              <div key={card.n} style={{ background: "#fff", border: "1px solid #E8E0D5", borderRadius: 12, padding: "2rem", borderTop: `3px solid #C8923A` }}>
-                <div style={{ ...s.label, color: "#C8923A", marginBottom: "1rem" }}>{card.n}</div>
-                <h3 style={{ ...s.h3lt, marginBottom: "0.75rem" }}>{card.title}</h3>
-                <p style={s.body}>{card.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── MECHANISM ── */}
-      <section id="science" style={{ background: "#1A1008", padding: "6rem 2rem" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <p style={{ ...s.label, marginBottom: "1rem" }}>Mechanism of Action</p>
-          <h2 style={{ ...s.h2dk, marginBottom: "1rem", maxWidth: 640 }}>
-            The MC1R pathway — your skin's own pigmentation signal, amplified
-          </h2>
-          <p style={{ ...s.bodyDk, maxWidth: 640, marginBottom: "3.5rem" }}>
-            Afamelanotide works through the same cascade your body uses to produce protective eumelanin — but amplified, and independent of UV exposure.
+          <h1 style={{ ...s.h1, maxWidth: 660, marginBottom: 24 }}>
+            The only FDA-approved<br />MC1R agonist for<br />photoprotection.
+          </h1>
+          <p style={{ ...s.bodyLt, maxWidth: 440, marginBottom: 20, fontSize: "1.0625rem" }}>
+            Afamelanotide doesn't block UV. It activates your melanin system at the receptor level — producing protective eumelanin through the body's own pigmentation pathway, independent of sun exposure.
           </p>
-
-          {/* 5-step cascade */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "0", position: "relative", marginBottom: "4rem" }}>
-            {[
-              { n: 1, label: "Afamelanotide", body: "Synthetic α-MSH analog. Subcutaneous implant. Released over ~5 days." },
-              { n: 2, label: "MC1R Binding", body: "Selectively binds MC1 receptor on melanocytes. Independent of UV exposure." },
-              { n: 3, label: "Eumelanin Synthesis", body: "Drives production of eumelanin — the photoprotective dark pigment — within melanosomes." },
-              { n: 4, label: "Melanosome Distribution", body: "Melanosomes distributed to surrounding keratinocytes, concentrated above the nucleus." },
-              { n: 5, label: "Photoprotection", body: "Increased epidermal eumelanin absorbs, scatters, and quenches UV. Antioxidant activity upregulated." },
-            ].map((step, i) => (
-              <div key={step.n} style={{ position: "relative", padding: "1.5rem 1.25rem 1.5rem 1.5rem", borderLeft: i === 0 ? "1px solid rgba(200,146,58,0.3)" : "none", borderTop: "1px solid rgba(200,146,58,0.3)", borderBottom: "1px solid rgba(200,146,58,0.3)", borderRight: "1px solid rgba(200,146,58,0.3)", background: i === 2 ? "rgba(200,146,58,0.08)" : "transparent" }}>
-                <div style={{ fontFamily: DM, fontWeight: 300, fontSize: "2rem", color: "rgba(200,146,58,0.3)", lineHeight: 1, marginBottom: "0.75rem" }}>{step.n}</div>
-                <div style={{ ...s.h3dk, fontSize: "0.9rem", marginBottom: "0.5rem" }}>{step.label}</div>
-                <p style={{ ...s.bodyDk, fontSize: "0.8rem" }}>{step.body}</p>
-              </div>
-            ))}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 40 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#C9A96E", display: "inline-block" }} />
+            <span style={{ ...s.bodyLt, fontSize: "0.875rem" }}>Physician-supervised · FDA-approved molecule · Bi-annual skin monitoring included</span>
           </div>
-
-          {/* Comparison table */}
-          <h3 style={{ ...s.h3dk, marginBottom: "1.5rem" }}>MC1R Agonist Comparison</h3>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: DM }}>
-              <thead>
-                <tr>
-                  {["", "Afamelanotide (MelanotanRx)", "Melanotan II", "Endogenous α-MSH"].map((h, i) => (
-                    <th key={h} style={{ padding: "0.75rem 1rem", textAlign: "left", borderBottom: "1px solid rgba(200,146,58,0.3)", color: i === 1 ? "#C8923A" : "#FAF6F0", fontWeight: 600, fontSize: "0.85rem", background: i === 1 ? "rgba(200,146,58,0.08)" : "transparent" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ["FDA status", "Approved (EPP, 2019)", "Not approved. Enforcement history.", "Natural hormone — not a product"],
-                  ["Receptor specificity", "MC1R selective", "MC1R + MC3R + MC4R (broader)", "MC1R primary"],
-                  ["Delivery", "Subcutaneous implant, bimonthly", "Injectable / nasal — illegal in US", "Endogenous release only"],
-                  ["UV independence", "Yes — increases eumelanin without UV", "Yes — but illegal in US", "No — requires UV trigger"],
-                  ["Phase 3 human data", "Yes — 3 trials, 244 subjects", "None", "N/A"],
-                  ["Physician oversight", "Required — skin monitoring mandatory", "Not available legally", "N/A"],
-                  ["Hormonal effects", "None significant at approved doses", "Priapism, nausea, BP changes reported", "None at physiologic levels"],
-                ].map((row, i) => (
-                  <tr key={row[0]} style={{ background: i % 2 === 0 ? "rgba(255,255,255,0.03)" : "transparent" }}>
-                    {row.map((cell, j) => (
-                      <td key={j} style={{ padding: "0.75rem 1rem", fontSize: "0.85rem", color: j === 0 ? "#C8923A" : j === 1 ? "#FAF6F0" : "#8A7A6A", borderBottom: "1px solid rgba(200,146,58,0.1)", background: j === 1 ? "rgba(200,146,58,0.05)" : "transparent", fontWeight: j === 0 ? 500 : 400 }}>
-                        {cell}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <a href="#quiz" className="btn-gold">Check My Eligibility</a>
+            <a href="#mechanism" className="btn-ghost-cream">How It Works</a>
           </div>
         </div>
       </section>
 
-      {/* ── RESEARCH ── */}
-      <section style={{ background: "#FAF6F0", padding: "6rem 2rem" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
-          <div>
-            <p style={{ ...s.label, marginBottom: "1rem" }}>Clinical Evidence</p>
-            <h2 style={{ ...s.h2lt, marginBottom: "1rem" }}>
-              Phase 3 data.<br />244 subjects.<br />FDA-reviewed.
-            </h2>
-            <p style={{ ...s.body, maxWidth: 480, marginBottom: "2rem" }}>
-              Three randomized controlled trials submitted to FDA as part of NDA 210797. The evidence base behind afamelanotide is the most rigorous of any melanocortin agent available.
+      {/* ══ PROBLEM — 6 cards ══ */}
+      <section id="problem" style={{ background: "#F5F0E8", padding: "100px 0" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 2.5rem" }}>
+          <p style={{ ...s.label, marginBottom: 16 }}>The Problem</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 60, alignItems: "start", marginBottom: 64 }}>
+            <h2 style={{ ...s.h2lt }}>Six signs your melanin system isn't protecting you</h2>
+            <p style={{ ...s.body, maxWidth: 520, paddingTop: 8 }}>
+              The MC1R pathway is your body's primary photoprotective mechanism. When it's disrupted — by EPP, vitiligo, grey-market compounds, or inadequate clinical options — the downstream effects are painful, progressive, and often preventable.
             </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-              {["Erythropoietic Protoporphyria", "Vitiligo Repigmentation", "Polymorphic Light Eruption", "Photoprotection", "Melanocyte Biology", "MC1R Pharmacology"].map((tag) => (
-                <span key={tag} style={{ background: "#F0E8DC", border: "1px solid #DDD0C0", borderRadius: 100, padding: "0.3rem 0.9rem", fontFamily: DM, fontSize: "0.75rem", color: "#6B3A1F" }}>
-                  {tag}
-                </span>
-              ))}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+            {problems.map((p) => (
+              <div key={p.title} style={{ background: "#fff", border: "1px solid rgba(13,13,13,0.07)", borderRadius: 10, padding: "28px 24px", transition: "box-shadow 0.2s" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 32px rgba(13,13,13,0.08)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", border: "1px solid rgba(201,169,110,0.35)", display: "flex", alignItems: "center", justifyContent: "center", color: "#C9A96E", fontSize: "1rem", marginBottom: 16 }}>{p.icon}</div>
+                <h3 style={{ ...s.h3lt, marginBottom: 10, fontSize: "1rem" }}>{p.title}</h3>
+                <p style={{ ...s.bodySm, margin: 0 }}>{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ MECHANISM ══ */}
+      <section id="mechanism" style={{ background: "#0D0D0D", padding: "100px 0" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 2.5rem" }}>
+          <p style={{ ...s.label, marginBottom: 16 }}>The Mechanism</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start" }}>
+            <div>
+              <h2 style={{ ...s.h2dk, marginBottom: 20 }}>The upstream receptor signal itself.</h2>
+              <p style={{ ...s.bodyLt, marginBottom: 40 }}>
+                Most photoprotective strategies work at the surface — sunscreens, antioxidants, UV-blocking fabrics. Afamelanotide is different: it is a synthetic analog of α-MSH, the hormone that activates your melanin system at the MC1R receptor. This means your melanocytes remain active, eumelanin is produced in your own skin cells, and photoprotection is built from within — not applied from without.
+              </p>
+
+              {/* 5-node flow diagram */}
+              <div style={{ marginBottom: 40 }}>
+                <p style={{ ...s.label, marginBottom: 20 }}>Signal Cascade</p>
+                {[
+                  { node: "Afamelanotide", sub: "Synthetic α-MSH analog. Subcutaneous implant.", arrow: true },
+                  { node: "MC1R Binding", sub: "Selective receptor activation on melanocytes", arrow: true },
+                  { node: "Eumelanin Synthesis", sub: "Photoprotective dark pigment produced in melanosomes", arrow: true },
+                  { node: "Melanosome Distribution", sub: "Melanosomes transferred to keratinocytes above nucleus", arrow: true },
+                  { node: "Photoprotection", sub: "UV absorption, scattering, and antioxidant upregulation", arrow: false },
+                ].map((item, i) => (
+                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                      <div style={{
+                        background: i === 0 ? "#C9A96E" : "rgba(201,169,110,0.12)",
+                        border: `1.5px solid ${i === 0 ? "#C9A96E" : "rgba(201,169,110,0.35)"}`,
+                        borderRadius: 8, padding: "10px 18px", minWidth: 200,
+                      }}>
+                        <span style={{ fontFamily: DM, fontWeight: 600, fontSize: "0.9375rem", color: i === 0 ? "#0D0D0D" : "#F5F0E8" }}>{item.node}</span>
+                      </div>
+                      <span style={{ ...s.bodyLt, fontSize: "0.8rem" }}>{item.sub}</span>
+                    </div>
+                    {item.arrow && (
+                      <div style={{ marginLeft: 24, width: 1.5, height: 20, background: "rgba(201,169,110,0.35)", margin: "4px 0 4px 24px" }} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Comparison table */}
+            <div>
+              <p style={{ ...s.label, marginBottom: 20 }}>MC1R Agonist Comparison</p>
+              <div style={{ border: "1px solid rgba(245,240,232,0.1)", borderRadius: 10, overflow: "hidden" }}>
+                {/* Header */}
+                <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1fr", background: "rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(245,240,232,0.1)" }}>
+                  {["", "Afamelanotide", "Melanotan II", "α-MSH (endogenous)"].map((h, i) => (
+                    <div key={i} style={{ padding: "14px 16px", fontFamily: DM, fontWeight: i === 1 ? 600 : 400, fontSize: "0.8rem", color: i === 1 ? "#C9A96E" : "rgba(245,240,232,0.5)", letterSpacing: "0.04em", borderRight: i < 3 ? "1px solid rgba(245,240,232,0.08)" : "none" }}>{h}</div>
+                  ))}
+                </div>
+                {[
+                  ["FDA status", "✓ Approved (EPP, 2019)", "✗ Not approved. Enforcement action.", "N/A — natural hormone"],
+                  ["Receptor specificity", "MC1R selective", "MC1R + MC3R + MC4R", "MC1R primary"],
+                  ["Delivery", "✓ Subcutaneous implant, bimonthly", "✗ Injectable / nasal — illegal in US", "Endogenous only"],
+                  ["UV independence", "✓ Yes — eumelanin without UV", "Yes — but illegal in US", "✗ Requires UV trigger"],
+                  ["Phase 3 human data", "✓ Yes — 3 trials, 244 subjects", "✗ None", "N/A"],
+                  ["Physician oversight", "✓ Required — skin monitoring mandatory", "✗ Not available legally", "N/A"],
+                  ["Hormonal side effects", "✓ None significant at approved doses", "✗ Priapism, nausea, BP changes", "None at physiologic levels"],
+                ].map((row, i) => (
+                  <div key={row[0]} style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1fr", borderBottom: i < 6 ? "1px solid rgba(245,240,232,0.06)" : "none" }}>
+                    {row.map((cell, j) => (
+                      <div key={j} style={{
+                        padding: "12px 16px", fontFamily: DM, fontSize: "0.8rem",
+                        color: j === 0 ? "rgba(245,240,232,0.45)" : j === 1 ? (cell.startsWith("✓") ? "#C9A96E" : cell.startsWith("✗") ? "rgba(245,240,232,0.3)" : "#F5F0E8") : (cell.startsWith("✓") ? "rgba(245,240,232,0.6)" : cell.startsWith("✗") ? "rgba(245,240,232,0.25)" : "rgba(245,240,232,0.5)"),
+                        borderRight: j < 3 ? "1px solid rgba(245,240,232,0.06)" : "none",
+                        background: j === 1 ? "rgba(201,169,110,0.04)" : "transparent",
+                      }}>{cell}</div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {[
-              { study: "CUV039 (Phase 3)", design: "RCT, N=93, 180 days", finding: "+64 hrs pain-free sunlight vs +41 placebo", cite: "Lancet 2015 · NEJM 2015" },
-              { study: "CUV029 (Phase 3)", design: "RCT, N=74, 270 days", finding: "Significantly more pain-free outdoor days", cite: "Langendonk et al. NEJM 2015" },
-              { study: "CUV030 (Phase 3)", design: "RCT, multicenter, vehicle-controlled", finding: "Contributed to FDA NDA 210797 approval package", cite: "FDA NDA Review 2019" },
-              { study: "Vitiligo RCT", design: "Randomized controlled trial", finding: "RCT evidence for repigmentation in vitiligo", cite: "PubMed 33683075 (2021)" },
-              { study: "Polymorphic Light Eruption", design: "RCT evidence", finding: "Reduced reactions to UV in PLE patients", cite: "PubMed 33683075 (2021)" },
-            ].map((row) => (
-              <div key={row.study} style={{ background: "#fff", border: "1px solid #E8E0D5", borderRadius: 8, padding: "1.25rem 1.5rem", borderLeft: `3px solid #C8923A` }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem" }}>
-                  <div>
-                    <div style={{ ...s.h3lt, fontSize: "0.95rem", marginBottom: "0.2rem" }}>{row.study}</div>
-                    <div style={{ ...s.caption, color: "#6B5A4A" }}>{row.design}</div>
-                  </div>
-                  <div style={{ ...s.caption, color: "#C8923A", textAlign: "right", flexShrink: 0 }}>{row.cite}</div>
+      {/* ══ FIVE PATHWAYS ══ */}
+      <section style={{ background: "#F5F0E8", padding: "100px 0" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 2.5rem" }}>
+          <p style={{ ...s.label, marginBottom: 16 }}>Clinical Evidence</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 60, alignItems: "start", marginBottom: 64 }}>
+            <h2 style={{ ...s.h2lt }}>Five evidence-backed pathways</h2>
+            <p style={{ ...s.body, maxWidth: 520, paddingTop: 8 }}>
+              Afamelanotide's effects are documented across Phase 3 randomized controlled trials, FDA prescribing data, and peer-reviewed research. Each pathway below is supported by a specific citation.
+            </p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            {pathways.map((p, i) => (
+              <div key={p.n} style={{
+                display: "grid", gridTemplateColumns: "80px 1fr 1fr",
+                gap: 40, padding: "36px 0",
+                borderBottom: i < pathways.length - 1 ? "1px solid rgba(13,13,13,0.08)" : "none",
+                alignItems: "start",
+              }}>
+                <span style={{ fontFamily: DM, fontWeight: 300, fontSize: "2rem", color: "rgba(13,13,13,0.15)", letterSpacing: "-0.04em", lineHeight: 1 }}>{p.n}</span>
+                <div>
+                  <h3 style={{ ...s.h3lt, marginBottom: 10 }}>{p.title}</h3>
+                  <p style={{ ...s.body, margin: 0 }}>{p.body}</p>
                 </div>
-                <p style={{ ...s.body, fontSize: "0.875rem", marginTop: "0.5rem", color: "#3D3D3D" }}>{row.finding}</p>
+                <div style={{ paddingTop: 4 }}>
+                  <p style={{ ...s.cite }}>Source: {p.cite}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── PROTOCOL ── */}
-      <section style={{ background: "#1A1008", padding: "6rem 2rem" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <p style={{ ...s.label, marginBottom: "1rem" }}>The Protocol</p>
-          <h2 style={{ ...s.h2dk, marginBottom: "3.5rem", maxWidth: 540 }}>
-            Four steps from intake to your first implant
-          </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: "1.5rem" }}>
+      {/* ══ RESEARCH — 6 studies ══ */}
+      <section id="research" style={{ background: "#0D0D0D", padding: "100px 0" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 2.5rem" }}>
+          <p style={{ ...s.label, marginBottom: 16 }}>Peer-Reviewed Evidence</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 60, alignItems: "start", marginBottom: 64 }}>
+            <h2 style={{ ...s.h2dk }}>The research behind the protocol</h2>
+            <p style={{ ...s.bodyLt, paddingTop: 8 }}>
+              Afamelanotide is the only FDA-approved MC1R agonist with Phase 3 randomized controlled trial data. These six studies form the evidentiary foundation of every Aurelius MelanotanRx protocol.
+            </p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+            {studies.map((st) => (
+              <div key={st.title} style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "24px 22px", display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ ...s.label, fontSize: "0.65rem", border: "1px solid rgba(201,169,110,0.35)", borderRadius: 4, padding: "3px 8px" }}>{st.tag}</span>
+                  <span style={{ fontFamily: DM, fontWeight: 300, fontSize: "0.8rem", color: "rgba(245,240,232,0.3)" }}>{st.year}</span>
+                </div>
+                <h3 style={{ ...s.h3dk, fontSize: "0.9375rem", lineHeight: 1.4 }}>{st.title}</h3>
+                <p style={{ fontFamily: DM, fontWeight: 300, fontSize: "0.75rem", color: "#C9A96E", letterSpacing: "0.02em" }}>{st.authors} <em style={{ color: "rgba(245,240,232,0.4)" }}>{st.journal}</em></p>
+                <p style={{ ...s.bodyLt, fontSize: "0.85rem", margin: 0 }}>{st.finding}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ 4-STEP PROTOCOL ══ */}
+      <section style={{ background: "#F5F0E8", padding: "100px 0" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 2.5rem" }}>
+          <p style={{ ...s.label, marginBottom: 16 }}>The Protocol</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 60, alignItems: "start", marginBottom: 64 }}>
+            <h2 style={{ ...s.h2lt }}>Four steps from intake to your first implant</h2>
+            <p style={{ ...s.body, paddingTop: 8 }}>Designed to mirror the monitoring infrastructure of the Phase 3 trials — physician oversight, baseline skin documentation, FDA-approved implant administration, and mandatory bi-annual monitoring.</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 32 }}>
             {[
               {
-                n: "01",
-                title: "Medical Intake & Physician Review",
-                body: "Health questionnaire: skin type (Fitzpatrick scale), photosensitivity history, melanocytic nevi count, cancer history, medications. Physician review within 48 hours. Informed consent required.",
+                n: "1", title: "Medical Intake & Physician Review",
+                items: ["Health questionnaire: Fitzpatrick type, photosensitivity history", "Melanocytic nevi count, cancer history, medications", "Physician review within 48 hours", "Informed consent and contraindication screening"],
               },
               {
-                n: "02",
-                title: "Baseline Skin Examination",
-                body: "Full body skin exam by physician or coordinated dermatology partner — required by FDA prescribing information before first implant. Existing nevi documented photographically.",
+                n: "2", title: "Baseline Skin Examination",
+                items: ["Full body skin exam — required by FDA prescribing information", "Existing nevi documented photographically", "Coordinated with our dermatology partner network", "Results reviewed before first implant is placed"],
               },
               {
-                n: "03",
-                title: "Implant Administration",
-                body: "16 mg afamelanotide subcutaneous implant placed above the anterior supra-iliac crest by a trained physician. Drug releases over ~5 days. Repeat every 2 months.",
+                n: "3", title: "Implant Administration",
+                items: ["16 mg afamelanotide subcutaneous implant", "Placed above anterior supra-iliac crest by trained physician", "Drug releases over ~5 days, >90% by day 5", "Repeat every 2 months — no daily dosing required"],
               },
               {
-                n: "04",
-                title: "Bi-Annual Monitoring",
-                body: "Full body skin exam every 6 months — mandatory per FDA prescribing information. Nevi monitored for changes. Protocol continues or adjusts based on response and skin findings.",
+                n: "4", title: "Bi-Annual Monitoring",
+                items: ["Full body skin exam every 6 months — FDA mandatory", "Nevi monitored for changes at each visit", "Physician check-ins between appointments", "Protocol adjusts based on skin findings and response"],
               },
             ].map((step) => (
-              <div key={step.n} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(200,146,58,0.2)", borderRadius: 12, padding: "2rem" }}>
-                <div style={{ fontFamily: DM, fontWeight: 300, fontSize: "2.5rem", color: "rgba(200,146,58,0.35)", lineHeight: 1, marginBottom: "1rem" }}>{step.n}</div>
-                <h3 style={{ ...s.h3dk, marginBottom: "0.75rem" }}>{step.title}</h3>
-                <p style={{ ...s.bodyDk, fontSize: "0.9rem" }}>{step.body}</p>
+              <div key={step.n} style={{ borderTop: "2px solid rgba(201,169,110,0.4)", paddingTop: 24 }}>
+                <div style={{ fontFamily: DM, fontWeight: 300, fontSize: "2.5rem", color: "rgba(13,13,13,0.12)", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: 12 }}>{step.n}</div>
+                <h3 style={{ ...s.h3lt, marginBottom: 16, fontSize: "1rem" }}>{step.title}</h3>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+                  {step.items.map((item) => (
+                    <li key={item} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                      <span style={{ color: "#C9A96E", fontSize: "0.75rem", marginTop: 3, flexShrink: 0 }}>◎</span>
+                      <span style={{ ...s.bodySm }}>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Photo + endorsement */}
-          <div style={{ marginTop: "4rem", borderRadius: 12, overflow: "hidden", position: "relative", height: 300 }}>
-            <img src={IMGS.labs} alt="Physician review" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.45 }} />
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(26,16,8,0.95) 40%, transparent)" }} />
-            <div style={{ position: "absolute", top: "50%", left: "3rem", transform: "translateY(-50%)", maxWidth: 480 }}>
-              <p style={{ ...s.bodyDk, fontSize: "1.05rem", fontStyle: "italic", marginBottom: "1rem" }}>
-                "The mandatory monitoring cadence is what separates this from every other melanocortin protocol. Skin exam at baseline, six months, and annually thereafter — non-negotiable."
+      {/* ══ WHAT'S INCLUDED ══ */}
+      <section style={{ background: "#0D0D0D", padding: "100px 0" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 2.5rem" }}>
+          <p style={{ ...s.label, marginBottom: 16 }}>What's Included</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 60, alignItems: "start", marginBottom: 64 }}>
+            <h2 style={{ ...s.h2dk }}>Phase 3 trial infrastructure. Delivered to you.</h2>
+            <p style={{ ...s.bodyLt, paddingTop: 8 }}>Every element of the Aurelius MelanotanRx plan mirrors the physician oversight and monitoring infrastructure used in the clinical trials that generated the FDA approval package.</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+            {included.map((item) => (
+              <div key={item.title} style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "28px 24px" }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", border: "1px solid rgba(201,169,110,0.35)", display: "flex", alignItems: "center", justifyContent: "center", color: "#C9A96E", fontSize: "1rem", marginBottom: 16 }}>{item.icon}</div>
+                <h3 style={{ ...s.h3dk, marginBottom: 8, fontSize: "1rem" }}>{item.title}</h3>
+                <p style={{ ...s.bodyLt, fontSize: "0.875rem", margin: 0 }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ PRICING ══ */}
+      <section id="pricing" style={{ background: "#F5F0E8", padding: "100px 0" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 2.5rem" }}>
+          <p style={{ ...s.label, marginBottom: 16 }}>Pricing</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+            <div>
+              <h2 style={{ ...s.h2lt, marginBottom: 20 }}>Specialist-level care. Without the dermatology markup.</h2>
+              <p style={{ ...s.body, marginBottom: 32 }}>
+                Dermatologist-administered photosensitivity protocols run $500–$900 per visit before product costs. Aurelius bundles physician oversight, the afamelanotide implant, and bi-annual skin monitoring into a single monthly plan.
               </p>
-              <p style={{ ...s.label }}>Aurelius Medical Advisory Board</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── DISCOVER PEPTIDES ── */}
-      <section style={{ background: "#FAF6F0", padding: "6rem 2rem" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <p style={{ ...s.label, marginBottom: "1rem" }}>Aurelius Health Group</p>
-          <h2 style={{ ...s.h2lt, marginBottom: "3rem", maxWidth: 480 }}>Explore related physician protocols</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: "1rem" }}>
-            {[
-              { name: "Tesamorelin", tag: "GHRH Analogue", url: "https://tesamorelin-rx.vercel.app" },
-              { name: "CJC-1295", tag: "GHRH Analogue", url: "https://cjc-1295rx.vercel.app" },
-              { name: "BPC-157", tag: "Tissue Repair", url: "#" },
-              { name: "Semax", tag: "Nootropic", url: "#" },
-              { name: "Thymosin α1", tag: "Immune", url: "#" },
-              { name: "Ipamorelin", tag: "GH Secretagogue", url: "#" },
-            ].map((p) => (
-              <a key={p.name} href={p.url} style={{ background: "#fff", border: "1px solid #E8E0D5", borderRadius: 10, padding: "1.5rem", textDecoration: "none", display: "block" }}>
-                <div style={{ ...s.label, marginBottom: "0.5rem" }}>{p.tag}</div>
-                <div style={{ ...s.h3lt, fontSize: "1rem" }}>{p.name}</div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── PRICING ── */}
-      <section style={{ background: "#1A1008", padding: "6rem 2rem" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
-          <div>
-            <p style={{ ...s.label, marginBottom: "1rem" }}>Pricing</p>
-            <h2 style={{ ...s.h2dk, marginBottom: "1rem" }}>
-              Physician-supervised MC1R protocol. Without the dermatology markup.
-            </h2>
-            <p style={{ ...s.bodyDk, marginBottom: "1.5rem" }}>
-              Dermatologist-administered photosensitivity protocols: $500–$900/visit + product. MelanotanRx bundles physician oversight, implant, and bi-annual skin monitoring.
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              {[
-                "Physician consultation",
-                "Afamelanotide implant (bimonthly)",
-                "Baseline skin exam coordination",
-                "Bi-annual monitoring visits",
-                "HIPAA portal access",
-                "No hidden fees",
-              ].map((item) => (
-                <div key={item} style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-                  <span style={{ color: "#C8923A", fontSize: "0.9rem" }}>✓</span>
-                  <span style={{ ...s.bodyDk, fontSize: "0.9rem" }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(200,146,58,0.3)", borderRadius: 16, padding: "3rem", textAlign: "center" }}>
-            <p style={{ ...s.label, marginBottom: "1rem" }}>Monthly Protocol</p>
-            <div style={{ fontFamily: DM, fontWeight: 300, fontSize: "4rem", color: "#FAF6F0", lineHeight: 1 }}>$249</div>
-            <div style={{ ...s.bodyDk, marginTop: "0.5rem", marginBottom: "2rem" }}>/month · billed monthly</div>
-            <a href="#quiz" style={{ display: "block", background: "#C8923A", color: "#1A1008", padding: "1rem 2rem", borderRadius: 4, fontFamily: DM, fontWeight: 600, fontSize: "0.9rem", letterSpacing: "0.04em", textDecoration: "none", marginBottom: "1rem" }}>
-              Check My Eligibility
-            </a>
-            <p style={{ ...s.caption, color: "#6B5A4A" }}>Subject to physician approval. Skin monitoring required. Cancel anytime.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── QUIZ ── */}
-      <section id="quiz" style={{ background: "#FAF6F0", padding: "6rem 2rem" }}>
-        <div style={{ maxWidth: 640, margin: "0 auto" }}>
-          <p style={{ ...s.label, marginBottom: "1rem" }}>Eligibility Screening</p>
-          <h2 style={{ ...s.h2lt, marginBottom: "0.75rem" }}>Am I a candidate for MelanotanRx?</h2>
-          <p style={{ ...s.body, marginBottom: "0.75rem" }}>
-            This screen does not constitute a medical evaluation. All protocols require physician review before implant placement.
-          </p>
-          <p style={{ ...s.caption, marginBottom: "2.5rem", color: "#8A7A6A" }}>
-            Afamelanotide is approved for specific indications. Eligibility is determined by a physician.
-          </p>
-
-          {!quizDone ? (
-            <div style={{ background: "#fff", border: "1px solid #E8E0D5", borderRadius: 12, padding: "2.5rem" }}>
-              <div style={{ ...s.caption, color: "#C8923A", marginBottom: "1.5rem" }}>
-                Question {quizStep + 1} of {QUESTIONS.length}
-              </div>
-              <div style={{ width: "100%", height: 3, background: "#F0E8DC", borderRadius: 3, marginBottom: "2rem" }}>
-                <div style={{ width: `${((quizStep) / QUESTIONS.length) * 100}%`, height: "100%", background: "#C8923A", borderRadius: 3, transition: "width 0.3s" }} />
-              </div>
-              <h3 style={{ ...s.h3lt, marginBottom: "2rem" }}>{QUESTIONS[quizStep].q}</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                {QUESTIONS[quizStep].options.map((opt, aIdx) => (
-                  <button key={opt} onClick={() => handleAnswer(quizStep, aIdx)} style={{ background: "#FAF6F0", border: "1px solid #DDD0C0", borderRadius: 8, padding: "1rem 1.25rem", textAlign: "left", fontFamily: DM, fontSize: "0.95rem", color: "#1A1008", cursor: "pointer" }}>
-                    {opt}
-                  </button>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {["Physician consultation included", "Baseline skin exam coordination included", "FDA-approved afamelanotide implant included", "Bi-annual monitoring visits included", "HIPAA-compliant portal access included", "No hidden fees"].map((item) => (
+                  <div key={item} style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#C9A96E" strokeWidth="1.2"/><path d="M5 8l2 2 4-4" stroke="#C9A96E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <span style={{ ...s.bodySm }}>{item}</span>
+                  </div>
                 ))}
               </div>
             </div>
-          ) : (
-            <div style={{ background: "#fff", border: "1px solid #E8E0D5", borderRadius: 12, padding: "2.5rem", textAlign: "center" }}>
-              {quizResult === "eligible" && (
-                <>
-                  <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>✓</div>
-                  <h3 style={{ ...s.h3lt, marginBottom: "0.75rem" }}>You appear to be a candidate</h3>
-                  <p style={{ ...s.body, marginBottom: "2rem" }}>Based on your responses, you may qualify for the MelanotanRx protocol. A physician will complete a full review before any implant is placed.</p>
-                  <a href="mailto:intake@aureliushealthgroup.com" style={{ display: "inline-block", background: "#C8923A", color: "#1A1008", padding: "0.9rem 2rem", borderRadius: 4, fontFamily: DM, fontWeight: 600, fontSize: "0.9rem", textDecoration: "none" }}>Start Your Intake</a>
-                </>
-              )}
-              {quizResult === "flag" && (
-                <>
-                  <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>◈</div>
-                  <h3 style={{ ...s.h3lt, marginBottom: "0.75rem" }}>Physician Review Required</h3>
-                  <p style={{ ...s.body, marginBottom: "2rem" }}>{flagMsg}</p>
-                  <a href="mailto:intake@aureliushealthgroup.com" style={{ display: "inline-block", background: "#C8923A", color: "#1A1008", padding: "0.9rem 2rem", borderRadius: 4, fontFamily: DM, fontWeight: 600, fontSize: "0.9rem", textDecoration: "none" }}>Request Physician Review</a>
-                </>
-              )}
-              {quizResult === "disqualified" && (
-                <>
-                  <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>✕</div>
-                  <h3 style={{ ...s.h3lt, marginBottom: "0.75rem" }}>Protocol Not Recommended</h3>
-                  <p style={{ ...s.body, marginBottom: "2rem" }}>{disqualMsg || "Based on your responses, the MelanotanRx protocol is not appropriate. Please consult your physician for alternative options."}</p>
-                  <button onClick={() => { setQuizStep(0); setQuizDone(false); setQuizResult(null); }} style={{ background: "transparent", border: "1px solid #C8923A", color: "#6B3A1F", padding: "0.9rem 2rem", borderRadius: 4, fontFamily: DM, fontWeight: 500, fontSize: "0.9rem", cursor: "pointer" }}>
-                    Retake Quiz
-                  </button>
-                </>
-              )}
+            <div>
+              <div style={{ background: "#0D0D0D", borderRadius: 12, padding: "48px 40px", textAlign: "center", border: "1px solid rgba(201,169,110,0.15)" }}>
+                <p style={{ ...s.label, marginBottom: 12 }}>MelanotanRx Plan</p>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 4, marginBottom: 8 }}>
+                  <span style={{ fontFamily: DM, fontWeight: 300, fontSize: "1.25rem", color: "#C9A96E", marginTop: 10 }}>$</span>
+                  <span style={{ fontFamily: DM, fontWeight: 300, fontSize: "5rem", lineHeight: 1, letterSpacing: "-0.04em", color: "#F5F0E8" }}>249</span>
+                  <span style={{ fontFamily: DM, fontWeight: 300, fontSize: "1rem", color: "rgba(245,240,232,0.4)", marginTop: 16 }}>/mo</span>
+                </div>
+                <p style={{ ...s.bodyLt, fontSize: "0.8rem", marginBottom: 32 }}>
+                  vs. $500–$900/visit at a dermatology clinic
+                </p>
+                <a href="#quiz" className="btn-gold" style={{ width: "100%", justifyContent: "center", padding: "16px", fontSize: "1rem" }}>Check My Eligibility</a>
+                <p style={{ ...s.bodyLt, fontSize: "0.75rem", marginTop: 16, opacity: 0.5 }}>Subject to physician approval. Skin monitoring required. Cancel anytime.</p>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </section>
 
-      {/* ── FAQ ── */}
-      <section style={{ background: "#FAF6F0", padding: "2rem 2rem 6rem" }}>
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
-          <p style={{ ...s.label, marginBottom: "1rem" }}>FAQ</p>
-          <h2 style={{ ...s.h2lt, marginBottom: "2.5rem" }}>Common questions</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
-            {FAQS.map((faq, i) => (
-              <div key={i} style={{ borderTop: "1px solid #E8E0D5" }}>
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  style={{ width: "100%", background: "transparent", border: "none", padding: "1.5rem 0", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", textAlign: "left" }}
-                >
-                  <span style={{ ...s.h3lt, fontSize: "1rem" }}>{faq.q}</span>
-                  <span style={{ color: "#C8923A", fontSize: "1.25rem", fontWeight: 300, flexShrink: 0, marginLeft: "1rem" }}>{openFaq === i ? "−" : "+"}</span>
-                </button>
-                {openFaq === i && (
-                  <p style={{ ...s.body, paddingBottom: "1.5rem" }}>{faq.a}</p>
-                )}
+      {/* ══ BODY IMAGE ══ */}
+      <section style={{ background: "#0D0D0D", padding: "0" }}>
+        <div style={{ position: "relative", maxHeight: 480, overflow: "hidden" }}>
+          <img src={IMGS.body} alt="Photoprotection protocol" style={{ width: "100%", objectFit: "cover", objectPosition: "center 30%", display: "block" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(13,13,13,0.75) 0%, transparent 40%, transparent 60%, rgba(13,13,13,0.75) 100%)" }} />
+          <div style={{ position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)", textAlign: "center", width: "100%" }}>
+            <p style={{ ...s.label, marginBottom: 8 }}>Phase 3 Trial Outcome</p>
+            <p style={{ fontFamily: DM, fontWeight: 300, fontSize: "clamp(1.25rem, 2.5vw, 2rem)", color: "#F5F0E8", letterSpacing: "-0.02em" }}>+64 hours pain-free sun exposure vs +41 hours placebo</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ ELIGIBILITY QUIZ ══ */}
+      <section id="quiz" style={{ background: "#0D0D0D", padding: "100px 0" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 2.5rem" }}>
+          <p style={{ ...s.label, marginBottom: 16, textAlign: "center" }}>Eligibility Screening</p>
+          <h2 style={{ ...s.h2dk, textAlign: "center", marginBottom: 16 }}>Are you a candidate for MelanotanRx?</h2>
+          <p style={{ ...s.bodyLt, textAlign: "center", marginBottom: 56, maxWidth: 520, margin: "0 auto 56px" }}>
+            This 6-question screen checks for afamelanotide-specific contraindications. It takes under 60 seconds and does not constitute a medical evaluation.
+          </p>
+          <EligibilityQuiz />
+        </div>
+      </section>
+
+      {/* ══ FAQ ══ */}
+      <section id="faq" style={{ background: "#0D0D0D", padding: "100px 0", borderTop: "1px solid rgba(245,240,232,0.06)" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 2.5rem" }}>
+          <p style={{ ...s.label, marginBottom: 16 }}>Frequently Asked Questions</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 80, alignItems: "start" }}>
+            <div style={{ position: "sticky", top: 100 }}>
+              <h2 style={{ ...s.h2dk, marginBottom: 20 }}>Everything you need to know</h2>
+              <p style={{ ...s.bodyLt }}>Including afamelanotide vs. Melanotan II, FDA approval status, skin exam requirements, side effects, and how this compares to retail melanin supplements.</p>
+              <div style={{ marginTop: 40 }}>
+                <img src={IMGS.labs} alt="Physician skin review" style={{ width: "100%", borderRadius: 10, objectFit: "cover" }} />
+              </div>
+            </div>
+            <div>
+              {faqs.map((item) => (
+                <FaqItem key={item.q} item={item} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ CLOSING CTA ══ */}
+      <section id="cta" style={{ background: "#0D0D0D", padding: "120px 0", textAlign: "center", borderTop: "1px solid rgba(245,240,232,0.06)" }}>
+        <div style={{ maxWidth: 700, margin: "0 auto", padding: "0 2.5rem" }}>
+          <p style={{ ...s.label, marginBottom: 20 }}>Start Today</p>
+          <h2 style={{ fontFamily: DM, fontWeight: 300, fontSize: "clamp(2rem, 4.5vw, 3.5rem)", lineHeight: 1.1, letterSpacing: "-0.03em", color: "#F5F0E8", marginBottom: 24 }}>
+            Your photosensitivity is not inevitable.
+          </h2>
+          <p style={{ ...s.bodyLt, marginBottom: 48, fontSize: "1.0625rem" }}>
+            Afamelanotide has more Phase 3 evidence behind it than any other melanocortin agent available. A physician-supervised protocol is available today. The question is whether you're a candidate.
+          </p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 20 }}>
+            <a href="#quiz" className="btn-gold" style={{ padding: "16px 36px", fontSize: "1rem" }}>Check My Eligibility</a>
+            <a href="#mechanism" className="btn-ghost-cream" style={{ padding: "16px 36px", fontSize: "1rem" }}>Review the Research</a>
+          </div>
+          <p style={{ fontFamily: DM, fontWeight: 400, fontSize: "0.75rem", color: "rgba(245,240,232,0.25)", lineHeight: 1.6, maxWidth: 560, margin: "0 auto" }}>
+            † Afamelanotide (Scenesse) is FDA-approved for erythropoietic protoporphyria. Use for vitiligo, polymorphic light eruption, and other photosensitivity conditions is off-label. Off-label prescribing is legal and at the clinical discretion of a licensed physician. This content is for informational purposes only and does not constitute medical advice. Individual results vary. All protocols require physician evaluation and are subject to contraindication screening. Aurelius Health Group is not affiliated with Clinuvel Pharmaceuticals.
+          </p>
+        </div>
+      </section>
+
+      {/* ══ FOOTER ══ */}
+      <footer style={{ background: "#0A0A0A", borderTop: "1px solid rgba(245,240,232,0.06)", padding: "64px 0 40px" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 2.5rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 56 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+                  <path d="M24 4 L6 40 L14 40 L24 20 L34 40 L42 40 Z" fill="#C9A96E" />
+                  <line x1="12" y1="28" x2="36" y2="28" stroke="#C9A96E" strokeWidth="2.5" strokeLinecap="round" />
+                  <line x1="24" y1="20" x2="24" y2="44" stroke="#C9A96E" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <div>
+                  <span style={{ fontFamily: DM, fontWeight: 500, fontSize: "0.875rem", letterSpacing: "0.1em", textTransform: "uppercase" as const, color: "#F5F0E8", display: "block" }}>MelanotanRx</span>
+                  <span style={{ fontFamily: DM, fontWeight: 300, fontSize: "0.6rem", letterSpacing: "0.1em", textTransform: "uppercase" as const, color: "#8C7B6B" }}>by Aurelius Health Group</span>
+                </div>
+              </div>
+              <p style={{ ...s.bodySm, color: "rgba(245,240,232,0.35)", maxWidth: 220, marginTop: 12 }}>Physician-supervised afamelanotide protocol for photoprotection, eumelanin optimization, and pigmentation management.</p>
+            </div>
+            {[
+              { heading: "Protocol", links: ["How It Works", "The Research", "Five Pathways", "What's Included"] },
+              { heading: "Company", links: ["About Aurelius", "Our Physicians", "All Treatments", "Blog"] },
+              { heading: "Support", links: ["Check Eligibility", "FAQ", "Contact Us", "Patient Portal"] },
+            ].map((col) => (
+              <div key={col.heading}>
+                <p style={{ fontFamily: DM, fontWeight: 500, fontSize: "0.7rem", letterSpacing: "0.1em", textTransform: "uppercase" as const, color: "rgba(245,240,232,0.3)", marginBottom: 16 }}>{col.heading}</p>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+                  {col.links.map((link) => (
+                    <li key={link}>
+                      <a href="#" style={{ fontFamily: DM, fontWeight: 400, fontSize: "0.875rem", color: "rgba(245,240,232,0.45)", textDecoration: "none" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "#F5F0E8")}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(245,240,232,0.45)")}>{link}</a>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
-            <div style={{ borderTop: "1px solid #E8E0D5" }} />
           </div>
-        </div>
-      </section>
-
-      {/* ── CLOSING CTA ── */}
-      <section style={{ background: "#1A1008", padding: "6rem 2rem", textAlign: "center" }}>
-        <div style={{ maxWidth: 640, margin: "0 auto" }}>
-          <p style={{ ...s.label, marginBottom: "1.5rem" }}>The first FDA-approved melanocortin protocol</p>
-          <h2 style={{ ...s.h2dk, marginBottom: "1.5rem" }}>
-            Physician-supervised.<br />
-            <span style={{ color: "#C8923A" }}>Built on approved science.</span>
-          </h2>
-          <p style={{ ...s.bodyDk, maxWidth: 480, margin: "0 auto 2.5rem" }}>
-            Not grey-market. Not compounded. Afamelanotide — the FDA-approved MC1R agonist with three Phase 3 trials behind it.
-          </p>
-          <a href="#quiz" style={{ display: "inline-block", background: "#C8923A", color: "#1A1008", padding: "1rem 2.5rem", borderRadius: 4, fontFamily: DM, fontWeight: 600, fontSize: "0.95rem", letterSpacing: "0.04em", textDecoration: "none" }}>
-            Check My Eligibility
-          </a>
-        </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer style={{ background: "#0F0904", padding: "3rem 2rem", borderTop: "1px solid rgba(200,146,58,0.1)" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "3rem", marginBottom: "3rem" }}>
-            <div>
-              <div style={{ fontFamily: DM, fontWeight: 600, fontSize: "1.1rem", color: "#C8923A", marginBottom: "1rem" }}>
-                Melanotan<span style={{ color: "#FAF6F0" }}>Rx</span>
-              </div>
-              <p style={{ ...s.caption, color: "#6B5A4A", maxWidth: 380, lineHeight: 1.6 }}>
-                MelanotanRx is a physician-supervised protocol using afamelanotide, an FDA-approved melanocortin-1 receptor agonist. All use is within the scope of applicable FDA approval. Individual results vary and are not guaranteed. Bi-annual skin monitoring is required. MelanotanRx is not affiliated with Clinuvel Pharmaceuticals.
-              </p>
-            </div>
-            <div>
-              <div style={{ ...s.label, marginBottom: "1rem", color: "#6B5A4A" }}>Protocol</div>
-              {["How It Works", "The Science", "Protocol Steps", "Pricing", "FAQ"].map((l) => (
-                <div key={l} style={{ marginBottom: "0.5rem" }}>
-                  <a href="#" style={{ ...s.caption, color: "#6B5A4A", textDecoration: "none" }}>{l}</a>
-                </div>
-              ))}
-            </div>
-            <div>
-              <div style={{ ...s.label, marginBottom: "1rem", color: "#6B5A4A" }}>Aurelius Health Group</div>
-              {[
-                { label: "aureliushealthgroup.com", url: "#" },
-                { label: "tesamorelin-rx.com", url: "https://tesamorelin-rx.vercel.app" },
-                { label: "cjc-1295rx.com", url: "https://cjc-1295rx.vercel.app" },
-                { label: "ipamorelin-rx.com", url: "#" },
-              ].map((l) => (
-                <div key={l.label} style={{ marginBottom: "0.5rem" }}>
-                  <a href={l.url} style={{ ...s.caption, color: "#6B5A4A", textDecoration: "none" }}>{l.label}</a>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ borderTop: "1px solid rgba(200,146,58,0.1)", paddingTop: "2rem", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
-            <p style={{ ...s.caption, color: "#4A3A2A" }}>
-              © 2026 Aurelius Health Group · melanotanrx.com · This content is for informational purposes only and does not constitute medical advice.
-            </p>
-            <div style={{ display: "flex", gap: "1.5rem" }}>
-              {["Privacy Policy", "Terms of Service", "Medical Disclaimer", "HIPAA Notice"].map((l) => (
-                <a key={l} href="#" style={{ ...s.caption, color: "#4A3A2A", textDecoration: "none" }}>{l}</a>
+          <div style={{ borderTop: "1px solid rgba(245,240,232,0.06)", paddingTop: 28, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+            <p style={{ fontFamily: DM, fontWeight: 400, fontSize: "0.8rem", color: "rgba(245,240,232,0.22)" }}>© 2026 Aurelius Health Group. MelanotanRx is a physician-supervised telehealth protocol. All rights reserved.</p>
+            <div style={{ display: "flex", gap: 24 }}>
+              {["Privacy Policy", "Terms of Service", "Medical Disclaimer"].map((link) => (
+                <a key={link} href="#" style={{ fontFamily: DM, fontWeight: 400, fontSize: "0.8rem", color: "rgba(245,240,232,0.22)", textDecoration: "none" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(245,240,232,0.5)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(245,240,232,0.22)")}>{link}</a>
               ))}
             </div>
           </div>
